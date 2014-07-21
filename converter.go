@@ -39,14 +39,14 @@ func NewConverter(conn *vnc.ClientConn) *Converter {
 	}
 }
 
-func (c *Converter) Process(m *vnc.FramebufferUpdateMessage) (image.Image, error) {
+func (c *Converter) Process(m *vnc.FramebufferUpdateMessage) error {
 	c.Lock()
 	defer c.Unlock()
 
 	for _, v := range m.Rectangles {
 		f, ok := TypeColors[v.Enc.Type()]
 		if !ok {
-			return nil, ErrUnknownEncoding
+			return ErrUnknownEncoding
 		}
 
 		colors := f(v.Enc)
@@ -66,11 +66,18 @@ func (c *Converter) Process(m *vnc.FramebufferUpdateMessage) (image.Image, error
 		}
 	}
 
+	return nil
+}
+
+func (c *Converter) Image() image.Image {
+	c.Lock()
+	defer c.Unlock()
+
 	// copy the image
 	copy := image.NewNRGBA64(c.lastimg.Rect)
 	for k, v := range c.lastimg.Pix {
 		copy.Pix[k] = v
 	}
 
-	return copy, nil
+	return copy
 }
