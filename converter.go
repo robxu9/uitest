@@ -51,10 +51,9 @@ func (c *Converter) Process(m *vnc.FramebufferUpdateMessage) error {
 
 		colors := f(v.Enc)
 
-		index := 0
 		for y := v.Y; y < v.Height; y++ {
 			for x := v.X; x < v.Width; x++ {
-				vcolor := colors[index]
+				vcolor := colors[x+y]
 
 				c.lastimg.SetNRGBA64(int(x), int(y), color.NRGBA64{
 					R: vcolor.R,
